@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "products")
+@Table(name = "productos")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,23 +17,27 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 100)
+    @Column(name = "nombre", nullable = false, length = 100)
     private String name;
 
-    @Column(length = 500)
+    @Column(name = "descripcion", length = 500)
     private String description;
 
-    @Column(name = "base_price", nullable = false, precision = 10, scale = 2)
+    @Column(name = "precio_base", nullable = false, precision = 10, scale = 2)
     private BigDecimal basePrice;
 
-    @Column(name = "image_url")
+    @Column(name = "url_imagen")
     private String imageUrl;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "categoria", nullable = false)
     private ProductCategory category;
 
-    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_producto", nullable = false)
+    private ProductType productType;
+
+    @Column(name = "activo", nullable = false)
     @Builder.Default
     private boolean active = true;
 
@@ -53,5 +57,4 @@ public class Product {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-
 }
