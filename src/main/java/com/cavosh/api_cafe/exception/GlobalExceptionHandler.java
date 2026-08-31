@@ -106,4 +106,15 @@ public class GlobalExceptionHandler {
                 .build();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
+
+    @ExceptionHandler(DuplicateFavoriteException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateFavorite(DuplicateFavoriteException ex) {
+        ErrorResponse error = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.CONFLICT.value())
+                .error("Conflict")
+                .message(ex.getMessage())
+                .build();
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
 }
