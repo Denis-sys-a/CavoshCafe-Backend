@@ -6,11 +6,12 @@ import com.cavosh.api_cafe.entity.Usuario;
 import com.cavosh.api_cafe.exception.EmailAlreadyExistsException;
 import com.cavosh.api_cafe.exception.InvalidCredentialsException;
 import com.cavosh.api_cafe.exception.InvalidTokenException;
+import com.cavosh.api_cafe.config.security.JwtTokenProvider;
 import com.cavosh.api_cafe.repository.TokenVerificacionRepository;
 import com.cavosh.api_cafe.repository.UsuarioRepository;
 import com.cavosh.api_cafe.service.AuthService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,12 +21,14 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
+
     private static final int TOKEN_VALIDITY_MINUTES = 15;
-    private static final BCryptPasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
     private static final SecureRandom RANDOM = new SecureRandom();
 
     private final UsuarioRepository usuarioRepository;
     private final TokenVerificacionRepository tokenVerificacionRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Override
     @Transactional
@@ -37,7 +40,7 @@ public class AuthServiceImpl implements AuthService {
         Usuario usuario = Usuario.builder()
                 .nombreCompleto(dto.getNombreCompleto())
                 .correo(dto.getCorreo())
-                .contrasenaHash(PASSWORD_ENCODER.encode(dto.getContrasena()))
+                .contrasenaHash(passwordEncoder.encode(dto.getContrasena()))
                 .telefono(dto.getTelefono())
                 .activo(true)
                 .verificado(false)
@@ -45,7 +48,7 @@ public class AuthServiceImpl implements AuthService {
 
         usuario = usuarioRepository.save(usuario);
 
-        String token = generarToken();
+        String token = generarTokenVerificacion();
         TokenVerificacion tokenVerificacion = TokenVerificacion.builder()
                 .usuario(usuario)
                 .token(token)
@@ -53,6 +56,8 @@ public class AuthServiceImpl implements AuthService {
                 .build();
         tokenVerificacionRepository.save(tokenVerificacion);
 
+        // TODO: enviar token por correo/SMS cuando se integre el servicio de
+        // notificaciones
         return AuthResponseDTO.builder()
                 .id(usuario.getId())
                 .nombreCompleto(usuario.getNombreCompleto())
@@ -96,7 +101,7 @@ public class AuthServiceImpl implements AuthService {
         Usuario usuario = usuarioRepository.findByCorreo(dto.getCorreo())
                 .orElseThrow(() -> new InvalidCredentialsException("Correo o contraseña incorrectos"));
 
-        if (!PASSWORD_ENCODER.matches(dto.getContrasena(), usuario.getContrasenaHash())) {
+        if (!passwordEncoder.matches(dto.getContrasena(), usuario.getContrasenaHash())) {
             throw new InvalidCredentialsException("Correo o contraseña incorrectos");
         }
 
@@ -104,16 +109,19 @@ public class AuthServiceImpl implements AuthService {
             throw new InvalidCredentialsException("Esta cuenta se encuentra inactiva");
         }
 
+        String token = jwtTokenProvider.generarToken(usuario.getCorreo());
+
         return AuthResponseDTO.builder()
                 .id(usuario.getId())
                 .nombreCompleto(usuario.getNombreCompleto())
                 .correo(usuario.getCorreo())
                 .verificado(usuario.isVerificado())
+                .token(token)
                 .mensaje("Inicio de sesión exitoso")
                 .build();
     }
 
-    private String generarToken() {
+    private String generarTokenVerificacion() {
         int codigo = 100000 + RANDOM.nextInt(900000); // 6 dígitos
         return String.valueOf(codigo);
     }

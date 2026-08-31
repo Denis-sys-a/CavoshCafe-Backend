@@ -1,5 +1,6 @@
 package com.cavosh.api_cafe.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 @Getter
@@ -12,5 +13,9 @@ public class AuthResponseDTO {
     private String nombreCompleto;
     private String correo;
     private boolean verificado;
+
+    @JsonProperty("tokenAcceso")
+    private String token;
+
     private String mensaje;
 }
