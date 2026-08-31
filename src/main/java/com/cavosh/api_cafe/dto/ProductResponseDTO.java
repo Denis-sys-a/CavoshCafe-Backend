@@ -1,6 +1,7 @@
 package com.cavosh.api_cafe.dto;
 
 import com.cavosh.api_cafe.entity.ProductCategory;
+import com.cavosh.api_cafe.entity.ProductType;
 import lombok.*;
 import java.math.BigDecimal;
 
@@ -16,4 +17,5 @@ public class ProductResponseDTO {
     private BigDecimal basePrice;
     private String imageUrl;
     private ProductCategory category;
+    private ProductType tipoProducto;
 }

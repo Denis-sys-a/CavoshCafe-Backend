@@ -85,7 +85,6 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public void deleteProduct(Long id) {
         Product product = findProductOrThrow(id);
-        // Borrado lógico: mantiene historial de pedidos íntegro
         product.setActive(false);
         productRepository.save(product);
     }
@@ -104,6 +103,7 @@ public class ProductServiceImpl implements ProductService {
                 .basePrice(product.getBasePrice())
                 .imageUrl(product.getImageUrl())
                 .category(product.getCategory())
+                .tipoProducto(product.getProductType())
                 .build();
     }
 

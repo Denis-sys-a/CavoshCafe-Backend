@@ -71,6 +71,7 @@ public class FavoritoServiceImpl implements FavoritoService {
                 .basePrice(product.getBasePrice())
                 .imageUrl(product.getImageUrl())
                 .category(product.getCategory())
+                .tipoProducto(product.getProductType())
                 .build();
     }
 }
