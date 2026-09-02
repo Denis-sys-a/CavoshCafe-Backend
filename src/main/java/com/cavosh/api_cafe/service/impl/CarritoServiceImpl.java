@@ -17,132 +17,136 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CarritoServiceImpl implements CarritoService {
 
-    private final CarritoRepository carritoRepository;
-    private final CarritoItemRepository carritoItemRepository;
-    private final UsuarioRepository usuarioRepository;
-    private final ProductRepository productRepository;
-    private final ProductoOpcionValorRepository productoOpcionValorRepository;
+        private final CarritoRepository carritoRepository;
+        private final CarritoItemRepository carritoItemRepository;
+        private final UsuarioRepository usuarioRepository;
+        private final ProductRepository productRepository;
+        private final ProductoOpcionValorRepository productoOpcionValorRepository;
 
-    @Override
-    @Transactional
-    public CarritoResponseDTO obtenerCarritoPorUsuario(Long usuarioId) {
-        Carrito carrito = obtenerOCrearCarrito(usuarioId);
-        return toResponseDTO(carrito);
-    }
+        @Override
+        @Transactional
+        public CarritoResponseDTO obtenerCarritoPorUsuario(Long usuarioId) {
+                Carrito carrito = obtenerOCrearCarrito(usuarioId);
+                return toResponseDTO(carrito);
+        }
 
-    @Override
-    @Transactional
-    public CarritoResponseDTO agregarItem(AgregarCarritoItemRequestDTO dto) {
-        Carrito carrito = obtenerOCrearCarrito(dto.getUsuarioId());
+        @Override
+        @Transactional
+        public CarritoResponseDTO agregarItem(AgregarCarritoItemRequestDTO dto) {
+                Carrito carrito = obtenerOCrearCarrito(dto.getUsuarioId());
 
-        Product producto = productRepository.findById(dto.getProductoId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Producto no encontrado con id: " + dto.getProductoId()));
-
-        List<ProductoOpcionValor> valoresElegidos = (dto.getOpcionValorIds() == null)
-                ? List.of()
-                : dto.getOpcionValorIds().stream()
-                        .map(id -> productoOpcionValorRepository.findById(id)
+                Product producto = productRepository.findById(dto.getProductoId())
                                 .orElseThrow(() -> new ResourceNotFoundException(
-                                        "Valor de opción no encontrado con id: " + id)))
-                        .collect(Collectors.toList());
+                                                "Producto no encontrado con id: " + dto.getProductoId()));
 
-        BigDecimal modificadores = valoresElegidos.stream()
-                .map(ProductoOpcionValor::getModificadorPrecio)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                List<ProductoOpcionValor> valoresElegidos = (dto.getOpcionValorIds() == null)
+                                ? List.of()
+                                : dto.getOpcionValorIds().stream()
+                                                .map(id -> productoOpcionValorRepository.findById(id)
+                                                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                                                "Valor de opción no encontrado con id: "
+                                                                                                + id)))
+                                                .collect(Collectors.toList());
 
-        BigDecimal precioUnitario = producto.getBasePrice().add(modificadores);
+                BigDecimal modificadores = valoresElegidos.stream()
+                                .map(valor -> valor.getModificadorPrecio())
+                                .reduce(BigDecimal.ZERO, (a, b) -> a.add(b));
 
-        CarritoItem item = CarritoItem.builder()
-                .carrito(carrito)
-                .producto(producto)
-                .cantidad(dto.getCantidad())
-                .precioUnitario(precioUnitario)
-                .build();
+                BigDecimal precioUnitario = producto.getBasePrice().add(modificadores);
 
-        valoresElegidos.forEach(valor -> item.getOpciones().add(CarritoItemOpcion.builder()
-                .carritoItem(item)
-                .productoOpcionValor(valor)
-                .build()));
+                CarritoItem item = CarritoItem.builder()
+                                .carrito(carrito)
+                                .producto(producto)
+                                .cantidad(dto.getCantidad())
+                                .precioUnitario(precioUnitario)
+                                .build();
 
-        carrito.getItems().add(item);
-        carritoRepository.save(carrito);
+                valoresElegidos.forEach(valor -> item.getOpciones().add(CarritoItemOpcion.builder()
+                                .carritoItem(item)
+                                .productoOpcionValor(valor)
+                                .build()));
 
-        return toResponseDTO(carrito);
-    }
+                carrito.getItems().add(item);
+                carritoRepository.save(carrito);
 
-    @Override
-    @Transactional
-    public CarritoResponseDTO actualizarCantidad(Long itemId, ActualizarCarritoItemRequestDTO dto) {
-        CarritoItem item = carritoItemRepository.findById(itemId)
-                .orElseThrow(() -> new ResourceNotFoundException("Ítem de carrito no encontrado con id: " + itemId));
+                return toResponseDTO(carrito);
+        }
 
-        item.setCantidad(dto.getCantidad());
-        carritoItemRepository.save(item);
+        @Override
+        @Transactional
+        public CarritoResponseDTO actualizarCantidad(Long itemId, ActualizarCarritoItemRequestDTO dto) {
+                CarritoItem item = carritoItemRepository.findById(itemId)
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "Ítem de carrito no encontrado con id: " + itemId));
 
-        return toResponseDTO(item.getCarrito());
-    }
+                item.setCantidad(dto.getCantidad());
+                carritoItemRepository.save(item);
 
-    @Override
-    @Transactional
-    public CarritoResponseDTO eliminarItem(Long itemId) {
-        CarritoItem item = carritoItemRepository.findById(itemId)
-                .orElseThrow(() -> new ResourceNotFoundException("Ítem de carrito no encontrado con id: " + itemId));
+                return toResponseDTO(item.getCarrito());
+        }
 
-        Carrito carrito = item.getCarrito();
-        carrito.getItems().remove(item);
-        carritoRepository.save(carrito);
+        @Override
+        @Transactional
+        public CarritoResponseDTO eliminarItem(Long itemId) {
+                CarritoItem item = carritoItemRepository.findById(itemId)
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "Ítem de carrito no encontrado con id: " + itemId));
 
-        return toResponseDTO(carrito);
-    }
+                Carrito carrito = item.getCarrito();
+                carrito.getItems().remove(item);
+                carritoRepository.save(carrito);
 
-    private Carrito obtenerOCrearCarrito(Long usuarioId) {
-        return carritoRepository.findByUsuarioId(usuarioId)
-                .orElseGet(() -> {
-                    Usuario usuario = usuarioRepository.findById(usuarioId)
-                            .orElseThrow(() -> new ResourceNotFoundException(
-                                    "Usuario no encontrado con id: " + usuarioId));
-                    Carrito nuevo = Carrito.builder().usuario(usuario).build();
-                    return carritoRepository.save(nuevo);
-                });
-    }
+                return toResponseDTO(carrito);
+        }
 
-    private CarritoResponseDTO toResponseDTO(Carrito carrito) {
-        List<CarritoItemResponseDTO> itemsDTO = carrito.getItems().stream()
-                .map(this::toItemResponseDTO)
-                .collect(Collectors.toList());
+        private Carrito obtenerOCrearCarrito(Long usuarioId) {
+                return carritoRepository.findByUsuarioId(usuarioId)
+                                .orElseGet(() -> {
+                                        Usuario usuario = usuarioRepository.findById(usuarioId)
+                                                        .orElseThrow(() -> new ResourceNotFoundException(
+                                                                        "Usuario no encontrado con id: " + usuarioId));
+                                        Carrito nuevo = Carrito.builder().usuario(usuario).build();
+                                        return carritoRepository.save(nuevo);
+                                });
+        }
 
-        BigDecimal total = itemsDTO.stream()
-                .map(CarritoItemResponseDTO::getSubtotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        private CarritoResponseDTO toResponseDTO(Carrito carrito) {
+                List<CarritoItemResponseDTO> itemsDTO = carrito.getItems().stream()
+                                .map(this::toItemResponseDTO)
+                                .collect(Collectors.toList());
 
-        return CarritoResponseDTO.builder()
-                .id(carrito.getId())
-                .usuarioId(carrito.getUsuario().getId())
-                .items(itemsDTO)
-                .total(total)
-                .build();
-    }
+                BigDecimal total = itemsDTO.stream()
+                                .map(itemDto -> itemDto.getSubtotal())
+                                .reduce(BigDecimal.ZERO, (a, b) -> a.add(b));
 
-    private CarritoItemResponseDTO toItemResponseDTO(CarritoItem item) {
-        List<CarritoItemOpcionResponseDTO> opcionesDTO = item.getOpciones().stream()
-                .map(op -> CarritoItemOpcionResponseDTO.builder()
-                        .nombreOpcion(op.getProductoOpcionValor().getProductoOpcion().getNombreOpcion())
-                        .nombreValor(op.getProductoOpcionValor().getNombreValor())
-                        .modificadorPrecio(op.getProductoOpcionValor().getModificadorPrecio())
-                        .build())
-                .collect(Collectors.toList());
+                return CarritoResponseDTO.builder()
+                                .id(carrito.getId())
+                                .usuarioId(carrito.getUsuario().getId())
+                                .items(itemsDTO)
+                                .total(total)
+                                .build();
+        }
 
-        BigDecimal subtotal = item.getPrecioUnitario().multiply(BigDecimal.valueOf(item.getCantidad()));
+        private CarritoItemResponseDTO toItemResponseDTO(CarritoItem item) {
+                List<CarritoItemOpcionResponseDTO> opcionesDTO = item.getOpciones().stream()
+                                .map(op -> CarritoItemOpcionResponseDTO.builder()
+                                                .nombreOpcion(op.getProductoOpcionValor().getProductoOpcion()
+                                                                .getNombreOpcion())
+                                                .nombreValor(op.getProductoOpcionValor().getNombreValor())
+                                                .modificadorPrecio(op.getProductoOpcionValor().getModificadorPrecio())
+                                                .build())
+                                .collect(Collectors.toList());
 
-        return CarritoItemResponseDTO.builder()
-                .id(item.getId())
-                .productoId(item.getProducto().getId())
-                .nombreProducto(item.getProducto().getName())
-                .cantidad(item.getCantidad())
-                .precioUnitario(item.getPrecioUnitario())
-                .subtotal(subtotal)
-                .opciones(opcionesDTO)
-                .build();
-    }
+                BigDecimal subtotal = item.getPrecioUnitario().multiply(BigDecimal.valueOf(item.getCantidad()));
+
+                return CarritoItemResponseDTO.builder()
+                                .id(item.getId())
+                                .productoId(item.getProducto().getId())
+                                .nombreProducto(item.getProducto().getName())
+                                .cantidad(item.getCantidad())
+                                .precioUnitario(item.getPrecioUnitario())
+                                .subtotal(subtotal)
+                                .opciones(opcionesDTO)
+                                .build();
+        }
 }
