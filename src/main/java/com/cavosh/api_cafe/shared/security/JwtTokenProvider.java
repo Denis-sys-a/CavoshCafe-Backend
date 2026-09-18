@@ -1,58 +1,58 @@
 package com.cavosh.api_cafe.shared.security;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SignatureException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
+@RequiredArgsConstructor
 public class JwtTokenProvider {
 
-    private final SecretKey key;
-    private final long expirationMs;
+    private final JwtProperties jwtProperties;
 
-    public JwtTokenProvider(JwtProperties jwtProperties) {
-        this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtProperties.getSecret()));
-        this.expirationMs = jwtProperties.getExpirationMs();
+    private SecretKey getSigningKey() {
+        byte[] keyBytes = jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generarToken(String correo) {
+    public String generarToken(String email, String rol) {
         Date ahora = new Date();
-        Date expiracion = new Date(ahora.getTime() + expirationMs);
+        Date fechaExpiracion = new Date(ahora.getTime() + jwtProperties.getExpirationMs());
 
         return Jwts.builder()
-                .subject(correo)
+                .subject(email)
+                .claim("rol", rol)
                 .issuedAt(ahora)
-                .expiration(expiracion)
-                .signWith(key)
+                .expiration(fechaExpiracion)
+                .signWith(getSigningKey())
                 .compact();
     }
 
-    public String extraerCorreo(String token) {
-        return parseClaims(token).getSubject();
-    }
-
-    public boolean esTokenValido(String token) {
-        try {
-            Claims claims = parseClaims(token);
-            return claims.getExpiration().after(new Date());
-        } catch (ExpiredJwtException | SignatureException | MalformedJwtException | IllegalArgumentException ex) {
-            return false;
-        }
-    }
-
-    private Claims parseClaims(String token) {
-        return Jwts.parser()
-                .verifyWith(key)
+    public String obtenerEmailDelToken(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(getSigningKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
+
+        return claims.getSubject();
+    }
+
+    public boolean validarToken(String token) {
+        try {
+            Jwts.parser()
+                    .verifyWith(getSigningKey())
+                    .build()
+                    .parseSignedClaims(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }
