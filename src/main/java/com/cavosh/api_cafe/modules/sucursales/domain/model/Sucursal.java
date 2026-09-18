@@ -1,40 +1,20 @@
 package com.cavosh.api_cafe.modules.sucursales.domain.model;
 
-import jakarta.persistence.*;
-import lombok.*;
-import java.time.LocalTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Entity
-@Table(name = "sucursales")
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Sucursal {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private Long id;
-
-    @Column(name = "nombre", nullable = false, length = 100)
     private String nombre;
-
-    @Column(name = "direccion", nullable = false)
     private String direccion;
-
-    @Column(name = "latitud")
-    private java.math.BigDecimal latitud;
-
-    @Column(name = "longitud")
-    private java.math.BigDecimal longitud;
-
-    @Column(name = "hora_apertura")
-    private LocalTime horaApertura;
-
-    @Column(name = "hora_cierre")
-    private LocalTime horaCierre;
-
-    @Column(name = "activo", nullable = false)
-    @Builder.Default
-    private boolean activo = true;
+    private String telefono;
+    private String horarioAtencion;
+    private Boolean activa;
 }
