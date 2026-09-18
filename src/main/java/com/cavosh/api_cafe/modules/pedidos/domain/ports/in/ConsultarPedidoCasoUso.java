@@ -1,5 +1,10 @@
 package com.cavosh.api_cafe.modules.pedidos.domain.ports.in;
 
-public class ConsultarPedidoCasoUso {
-    
+import com.cavosh.api_cafe.modules.pedidos.domain.model.Pedido;
+
+import java.util.List;
+
+public interface ConsultarPedidoCasoUso {
+    Pedido obtenerPorId(Long id);
+    List<Pedido> obtenerPorUsuario(Long usuarioId);
 }

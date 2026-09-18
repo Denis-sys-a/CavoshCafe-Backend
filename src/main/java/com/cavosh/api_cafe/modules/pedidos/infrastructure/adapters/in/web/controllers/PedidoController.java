@@ -1,11 +1,11 @@
 package com.cavosh.api_cafe.modules.pedidos.infrastructure.adapters.in.web.controllers;
 
-import com.cavosh.api_cafe.dto.CheckoutRequestDTO;
-import com.cavosh.api_cafe.modules.pedidos.infrastructure.adapters.in.web.dtos.PedidoResponseDTO;
-import com.cavosh.api_cafe.service.PedidoService;
+import com.cavosh.api_cafe.modules.pedidos.domain.model.Pedido;
+import com.cavosh.api_cafe.modules.pedidos.domain.ports.in.ConsultarPedidoCasoUso;
+import com.cavosh.api_cafe.modules.pedidos.domain.ports.in.CrearPedidoCasoUso;
+import com.cavosh.api_cafe.modules.pedidos.infrastructure.adapters.in.web.dtos.CrearPedidoRequestDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,16 +16,21 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PedidoController {
 
-    private final PedidoService pedidoService;
+    private final CrearPedidoCasoUso crearPedidoCasoUso;
+    private final ConsultarPedidoCasoUso consultarPedidoCasoUso;
 
-    @PostMapping("/checkout")
-    public ResponseEntity<PedidoResponseDTO> checkout(@Valid @RequestBody CheckoutRequestDTO dto) {
-        PedidoResponseDTO pedido = pedidoService.crearPedidoDesdeCarrito(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(pedido);
+    @PostMapping
+    public ResponseEntity<Pedido> crearPedido(@Valid @RequestBody CrearPedidoRequestDTO dto) {
+        return ResponseEntity.ok(crearPedidoCasoUso.crearPedido(dto));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Pedido> obtenerPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(consultarPedidoCasoUso.obtenerPorId(id));
     }
 
     @GetMapping("/usuario/{usuarioId}")
-    public ResponseEntity<List<PedidoResponseDTO>> historial(@PathVariable Long usuarioId) {
-        return ResponseEntity.ok(pedidoService.obtenerHistorialPorUsuario(usuarioId));
+    public ResponseEntity<List<Pedido>> obtenerPorUsuario(@PathVariable Long usuarioId) {
+        return ResponseEntity.ok(consultarPedidoCasoUso.obtenerPorUsuario(usuarioId));
     }
 }
