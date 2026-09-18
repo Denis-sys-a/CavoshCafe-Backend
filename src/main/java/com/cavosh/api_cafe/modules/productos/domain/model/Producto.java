@@ -1,60 +1,28 @@
 package com.cavosh.api_cafe.modules.productos.domain.model;
 
-import jakarta.persistence.*;
-import lombok.*;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Entity
-@Table(name = "productos")
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Producto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String nombre;
+    private String descripcion;
+    private BigDecimal precio;
+    private String imagenUrl;
+    private Boolean disponible;
+    private Categoria categoria;
 
-    @Column(name = "nombre", nullable = false, length = 100)
-    private String name;
-
-    @Column(name = "descripcion", length = 500)
-    private String description;
-
-    @Column(name = "precio_base", nullable = false, precision = 10, scale = 2)
-    private BigDecimal basePrice;
-
-    @Column(name = "url_imagen")
-    private String imageUrl;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "categoria", nullable = false)
-    private ProductCategory category;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "tipo_producto", nullable = false)
-    private ProductType productType;
-
-    @Column(name = "activo", nullable = false)
     @Builder.Default
-    private boolean active = true;
-
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
+    private List<OpcionProducto> opciones = new ArrayList<>();
 }

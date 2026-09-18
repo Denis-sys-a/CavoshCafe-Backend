@@ -1,12 +1,11 @@
 package com.cavosh.api_cafe.modules.productos.infrastructure.adapters.in.web.controllers;
 
-import com.cavosh.api_cafe.modules.productos.infrastructure.adapters.in.web.dtos.ProductResponseDTO;
-import com.cavosh.api_cafe.service.FavoritoService;
+import com.cavosh.api_cafe.modules.productos.domain.model.Producto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -14,26 +13,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FavoritoController {
 
-    private final FavoritoService favoritoService;
-
-    @PostMapping
-    public ResponseEntity<Void> agregar(
-            @RequestParam Long usuarioId,
-            @RequestParam Long productoId) {
-        favoritoService.agregarAFavoritos(usuarioId, productoId);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    @GetMapping("/{usuarioId}")
+    public ResponseEntity<List<Producto>> obtenerFavoritos(@PathVariable Long usuarioId) {
+        return ResponseEntity.ok(Collections.emptyList());
     }
 
-    @DeleteMapping
-    public ResponseEntity<Void> eliminar(
-            @RequestParam Long usuarioId,
-            @RequestParam Long productoId) {
-        favoritoService.eliminarDeFavoritos(usuarioId, productoId);
+    @PostMapping("/{usuarioId}/{productoId}")
+    public ResponseEntity<Void> agregarFavorito(@PathVariable Long usuarioId, @PathVariable Long productoId) {
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{usuarioId}/{productoId}")
+    public ResponseEntity<Void> eliminarFavorito(@PathVariable Long usuarioId, @PathVariable Long productoId) {
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/usuario/{usuarioId}")
-    public ResponseEntity<List<ProductResponseDTO>> listarPorUsuario(@PathVariable Long usuarioId) {
-        return ResponseEntity.ok(favoritoService.obtenerFavoritosPorUsuario(usuarioId));
     }
 }

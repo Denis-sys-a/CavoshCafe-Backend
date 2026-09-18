@@ -1,35 +1,23 @@
 package com.cavosh.api_cafe.modules.productos.infrastructure.adapters.in.web.dtos;
 
-import com.cavosh.api_cafe.entity.ProductType;
-import com.cavosh.api_cafe.modules.productos.infrastructure.adapters.out.persistence.entities.ProductCategoryEntity;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.math.BigDecimal;
 
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class ProductResponseDTO {
 
     private Long id;
-
-    @JsonProperty("producto")
-    private String name;
-
-    @JsonProperty("descripcion")
-    private String description;
-
-    @JsonProperty("precioBase")
-    private BigDecimal basePrice;
-
-    @JsonProperty("imagenUrl")
-    private String imageUrl;
-
-    @JsonProperty("categoria")
-    private ProductCategoryEntity category;
-
-    @JsonProperty("tipoProducto")
-    private ProductType tipoProducto;
+    private String nombre;
+    private String descripcion;
+    private BigDecimal precio;
+    private String imagenUrl;
+    private Boolean disponible;
+    private String categoriaNombre;
 }

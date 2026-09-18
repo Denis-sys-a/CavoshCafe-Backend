@@ -1,58 +1,53 @@
 package com.cavosh.api_cafe.modules.productos.infrastructure.adapters.in.web.controllers;
 
+import com.cavosh.api_cafe.modules.productos.domain.model.Categoria;
+import com.cavosh.api_cafe.modules.productos.domain.model.Producto;
+import com.cavosh.api_cafe.modules.productos.domain.ports.in.CategoriaCasoUso;
+import com.cavosh.api_cafe.modules.productos.domain.ports.in.ProductoCasoUso;
 import com.cavosh.api_cafe.modules.productos.infrastructure.adapters.in.web.dtos.ProductDTO;
-import com.cavosh.api_cafe.modules.productos.infrastructure.adapters.in.web.dtos.ProductResponseDTO;
-import com.cavosh.api_cafe.modules.productos.infrastructure.adapters.out.persistence.entities.ProductCategoryEntity;
-import com.cavosh.api_cafe.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/products")
+@RequestMapping("/api/productos")
 @RequiredArgsConstructor
 public class ProductController {
 
-    private final ProductService productService;
+    private final ProductoCasoUso productoCasoUso;
+    private final CategoriaCasoUso categoriaCasoUso;
 
     @GetMapping
-    public ResponseEntity<List<ProductResponseDTO>> getAll(
-            @RequestParam(required = false) ProductCategoryEntity category,
-            @RequestParam(required = false) String search) {
-
-        if (category != null) {
-            return ResponseEntity.ok(productService.getProductsByCategory(category));
-        }
-        if (search != null && !search.isBlank()) {
-            return ResponseEntity.ok(productService.searchProducts(search));
-        }
-        return ResponseEntity.ok(productService.getAllProducts());
+    public ResponseEntity<List<Producto>> obtenerTodos() {
+        return ResponseEntity.ok(productoCasoUso.obtenerTodos());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductResponseDTO> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(productService.getProductById(id));
+    public ResponseEntity<Producto> obtenerPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(productoCasoUso.obtenerPorId(id));
     }
 
     @PostMapping
-    public ResponseEntity<ProductResponseDTO> create(@Valid @RequestBody ProductDTO dto) {
-        ProductResponseDTO created = productService.createProduct(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    public ResponseEntity<Producto> crear(@Valid @RequestBody ProductDTO dto) {
+        return ResponseEntity.ok(productoCasoUso.crear(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProductResponseDTO> update(
-            @PathVariable Long id, @Valid @RequestBody ProductDTO dto) {
-        return ResponseEntity.ok(productService.updateProduct(id, dto));
+    public ResponseEntity<Producto> actualizar(@PathVariable Long id, @Valid @RequestBody ProductDTO dto) {
+        return ResponseEntity.ok(productoCasoUso.actualizar(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        productService.deleteProduct(id);
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        productoCasoUso.eliminar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/categorias")
+    public ResponseEntity<List<Categoria>> obtenerCategorias() {
+        return ResponseEntity.ok(categoriaCasoUso.obtenerTodas());
     }
 }
