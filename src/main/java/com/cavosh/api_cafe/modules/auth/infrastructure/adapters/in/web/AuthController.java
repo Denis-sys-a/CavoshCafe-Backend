@@ -1,10 +1,12 @@
 package com.cavosh.api_cafe.modules.auth.infrastructure.adapters.in.web;
 
-import com.cavosh.api_cafe.dto.*;
-import com.cavosh.api_cafe.service.AuthService;
+import com.cavosh.api_cafe.modules.auth.application.usecases.AutenticarUsuarioCasoUso;
+import com.cavosh.api_cafe.modules.auth.application.usecases.RegistrarUsuarioCasoUso;
+import com.cavosh.api_cafe.modules.auth.infrastructure.adapters.in.web.dtos.AuthResponseDTO;
+import com.cavosh.api_cafe.modules.auth.infrastructure.adapters.in.web.dtos.LoginRequestDTO;
+import com.cavosh.api_cafe.modules.auth.infrastructure.adapters.in.web.dtos.RegisterRequestDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,21 +14,17 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
-    private final AuthService authService;
+
+    private final RegistrarUsuarioCasoUso registrarUsuarioCasoUso;
+    private final AutenticarUsuarioCasoUso autenticarUsuarioCasoUso;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponseDTO> register(@Valid @RequestBody RegisterRequestDTO dto) {
-        AuthResponseDTO response = authService.registrarUsuario(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    @PostMapping("/verify")
-    public ResponseEntity<AuthResponseDTO> verify(@Valid @RequestBody VerificationRequestDTO dto) {
-        return ResponseEntity.ok(authService.verificarCuenta(dto));
+    public ResponseEntity<AuthResponseDTO> register(@Valid @RequestBody RegisterRequestDTO request) {
+        return ResponseEntity.ok(registrarUsuarioCasoUso.ejecutar(request));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO dto) {
-        return ResponseEntity.ok(authService.loginUsuario(dto));
+    public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
+        return ResponseEntity.ok(autenticarUsuarioCasoUso.ejecutar(request));
     }
 }
