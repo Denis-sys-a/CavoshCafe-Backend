@@ -1,43 +1,39 @@
 package com.cavosh.api_cafe.modules.usuarios.infrastructure.adapters.in.web.controllers;
 
+import com.cavosh.api_cafe.modules.usuarios.domain.model.Direccion;
+import com.cavosh.api_cafe.modules.usuarios.domain.model.Usuario;
+import com.cavosh.api_cafe.modules.usuarios.domain.ports.in.ConsultarUsuarioCasoUso;
+import com.cavosh.api_cafe.modules.usuarios.domain.ports.in.RegistrarDireccionCasoUso;
 import com.cavosh.api_cafe.modules.usuarios.infrastructure.adapters.in.web.dtos.DireccionRequestDTO;
-import com.cavosh.api_cafe.modules.usuarios.infrastructure.adapters.in.web.dtos.UsuarioResponseDTO;
-import com.cavosh.api_cafe.service.UsuarioDireccionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/usuarios/me/direcciones")
+@RequestMapping("/api/usuarios")
 @RequiredArgsConstructor
 public class UsuarioDireccionController {
 
-    private final UsuarioDireccionService usuarioDireccionService;
+    private final ConsultarUsuarioCasoUso consultarUsuarioCasoUso;
+    private final RegistrarDireccionCasoUso registrarDireccionCasoUso;
 
-    @GetMapping
-    public ResponseEntity<List<UsuarioResponseDTO>> listar(Authentication authentication) {
-        String correo = authentication.getName();
-        return ResponseEntity.ok(usuarioDireccionService.obtenerDireccionesPorUsuario(correo));
+    @GetMapping("/{id}")
+    public ResponseEntity<Usuario> obtenerPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(consultarUsuarioCasoUso.obtenerPorId(id));
     }
 
-    @PostMapping
-    public ResponseEntity<UsuarioResponseDTO> crear(
-            Authentication authentication,
+    @PostMapping("/{usuarioId}/direcciones")
+    public ResponseEntity<Direccion> agregarDireccion(
+            @PathVariable Long usuarioId,
             @Valid @RequestBody DireccionRequestDTO dto) {
-        String correo = authentication.getName();
-        UsuarioResponseDTO creada = usuarioDireccionService.crearDireccion(correo, dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(creada);
+        return ResponseEntity.ok(registrarDireccionCasoUso.agregarDireccion(usuarioId, dto));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(Authentication authentication, @PathVariable Long id) {
-        String correo = authentication.getName();
-        usuarioDireccionService.eliminarDireccion(correo, id);
-        return ResponseEntity.noContent().build();
+    @GetMapping("/{usuarioId}/direcciones")
+    public ResponseEntity<List<Direccion>> obtenerDirecciones(@PathVariable Long usuarioId) {
+        return ResponseEntity.ok(registrarDireccionCasoUso.obtenerDireccionesPorUsuario(usuarioId));
     }
 }

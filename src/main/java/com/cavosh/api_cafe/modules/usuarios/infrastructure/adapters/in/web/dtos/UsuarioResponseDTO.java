@@ -1,18 +1,20 @@
 package com.cavosh.api_cafe.modules.usuarios.infrastructure.adapters.in.web.dtos;
 
-import lombok.*;
-import java.math.BigDecimal;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class UsuarioResponseDTO {
+
     private Long id;
-    private String etiqueta;
-    private String direccion;
-    private BigDecimal latitud;
-    private BigDecimal longitud;
-    private boolean esPredeterminada;
+    private String nombre;
+    private String apellido;
+    private String email;
+    private String telefono;
+    private String rol;
 }

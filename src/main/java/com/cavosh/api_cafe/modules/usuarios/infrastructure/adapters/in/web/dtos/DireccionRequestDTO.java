@@ -1,26 +1,24 @@
 package com.cavosh.api_cafe.modules.usuarios.infrastructure.adapters.in.web.dtos;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-import lombok.*;
-import java.math.BigDecimal;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class DireccionRequestDTO {
 
-    @NotBlank(message = "La etiqueta es obligatoria")
-    @Size(max = 50)
-    private String etiqueta;
+    @NotBlank(message = "La calle es obligatoria")
+    private String calle;
 
-    @NotBlank(message = "La dirección es obligatoria")
-    private String direccion;
+    @NotBlank(message = "La ciudad es obligatoria")
+    private String ciudad;
 
-    private BigDecimal latitud;
-
-    private BigDecimal longitud;
-
-    private boolean esPredeterminada;
+    private String distrito;
+    private String referencia;
+    private Boolean esPrincipal;
 }
