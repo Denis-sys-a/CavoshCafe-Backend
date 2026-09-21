@@ -6,10 +6,11 @@ import com.cavosh.api_cafe.modules.auth.domain.model.CodigoVerificacion;
 
 /**
  * Puerto de salida de persistencia para los códigos OTP de verificación.
- * La implementación concreta (Spring Data / JPA) vive en
- * infrastructure/adapters/out/persistence/adapters.
+ * (Renombrado desde CodigoVerificacionRepositoryPort para alinear con la
+ * convención pedida en la Fase 1 de Autenticación.)
+ * La implementación concreta vive en infrastructure/adapters/out/persistence/adapters.
  */
-public interface CodigoVerificacionRepositoryPort {
+public interface CodigoVerificacionRepository {
 
     CodigoVerificacion guardar(CodigoVerificacion codigo);
 

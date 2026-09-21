@@ -10,13 +10,14 @@ USE cavosh_db;
 
 CREATE TABLE usuarios (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    nombre_completo VARCHAR(100) NOT NULL,
+    full_name VARCHAR(100) NOT NULL,
     correo VARCHAR(150) NOT NULL UNIQUE,
-    contrasena_hash VARCHAR(255) NOT NULL,
+    contrasena_hash VARCHAR(255) NULL,      -- NULL permitido: un usuario GOOGLE no tiene password local
+    auth_provider VARCHAR(20) NOT NULL DEFAULT 'LOCAL',   -- 'LOCAL' | 'GOOGLE'
     telefono VARCHAR(20),
     url_avatar VARCHAR(255),
     puntos_fidelidad INT NOT NULL DEFAULT 0,
-    verificado BOOLEAN NOT NULL DEFAULT FALSE,
+    is_verified BOOLEAN NOT NULL DEFAULT FALSE,
     activo BOOLEAN NOT NULL DEFAULT TRUE,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -31,15 +32,16 @@ CREATE TABLE tokens_verificacion (
     CONSTRAINT fk_token_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- Codigos OTP de verificacion de correo (no dependen de un usuario existente)
+-- Codigos OTP de verificacion de correo (no dependen de un usuario existente:
+-- se validan antes de crear la cuenta local o de vincular una cuenta Google)
 CREATE TABLE codigos_verificacion (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    email VARCHAR(150) NOT NULL,
+    correo VARCHAR(150) NOT NULL,
     codigo VARCHAR(6) NOT NULL,
-    expiracion DATETIME NOT NULL,
+    fecha_expiracion TIMESTAMP NOT NULL,
     usado BOOLEAN NOT NULL DEFAULT FALSE,
-    fecha_creacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_codigo_email_usado (email, usado, fecha_creacion)
+    fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_codigo_correo_usado (correo, usado, fecha_creacion)
 ) ENGINE=InnoDB;
 
 CREATE TABLE usuario_direcciones (

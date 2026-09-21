@@ -2,7 +2,7 @@ package com.cavosh.api_cafe.modules.usuarios.application.usecases;
 
 import com.cavosh.api_cafe.modules.usuarios.domain.model.Usuario;
 import com.cavosh.api_cafe.modules.usuarios.domain.ports.in.ConsultarUsuarioCasoUso;
-import com.cavosh.api_cafe.modules.usuarios.domain.ports.out.UsuarioRepositorioPuerto;
+import com.cavosh.api_cafe.modules.usuarios.domain.ports.out.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ConsultarUsuarioCasoUsoImpl implements ConsultarUsuarioCasoUso {
 
-    private final UsuarioRepositorioPuerto usuarioRepositorioPuerto;
+    private final UsuarioRepository usuarioRepositorioPuerto;
 
     @Override
     public Usuario obtenerPorId(Long id) {

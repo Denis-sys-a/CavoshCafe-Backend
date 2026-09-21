@@ -23,5 +23,9 @@ public class Usuario {
     private String rol;
 
     @Builder.Default
+    private AuthProvider authProvider = AuthProvider.LOCAL;
+    private Boolean isVerified;
+
+    @Builder.Default
     private List<Direccion> direcciones = new ArrayList<>();
 }

@@ -5,7 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cavosh.api_cafe.modules.auth.domain.exception.CodigoVerificacionInvalidoException;
 import com.cavosh.api_cafe.modules.auth.domain.model.CodigoVerificacion;
-import com.cavosh.api_cafe.modules.auth.domain.ports.out.CodigoVerificacionRepositoryPort;
+import com.cavosh.api_cafe.modules.auth.domain.ports.out.CodigoVerificacionRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class ValidarCodigoVerificacionCasoUsoImpl implements ValidarCodigoVerificacionCasoUso {
 
-    private final CodigoVerificacionRepositoryPort codigoRepository;
+    private final CodigoVerificacionRepository codigoRepository;
 
     @Override
     @Transactional

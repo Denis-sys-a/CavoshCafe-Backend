@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cavosh.api_cafe.modules.auth.domain.exception.CodigoVerificacionInvalidoException;
 import com.cavosh.api_cafe.modules.auth.domain.model.CodigoVerificacion;
-import com.cavosh.api_cafe.modules.auth.domain.ports.out.CodigoVerificacionRepositoryPort;
+import com.cavosh.api_cafe.modules.auth.domain.ports.out.CodigoVerificacionRepository;
 import com.cavosh.api_cafe.modules.auth.domain.ports.out.EmailService;
 
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class EnviarCodigoVerificacionCasoUsoImpl implements EnviarCodigoVerifica
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
-    private final CodigoVerificacionRepositoryPort codigoRepository;
+    private final CodigoVerificacionRepository codigoRepository;
     private final EmailService emailService;
 
     @Value("${app.otp.expiration-minutes:10}")
