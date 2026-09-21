@@ -3,6 +3,7 @@ package com.cavosh.api_cafe.modules.carrito.infrastructure.adapters.in.web.contr
 import com.cavosh.api_cafe.modules.carrito.domain.model.Carrito;
 import com.cavosh.api_cafe.modules.carrito.domain.ports.in.CarritoCasoUso;
 import com.cavosh.api_cafe.modules.carrito.infrastructure.adapters.in.web.dtos.AgregarItemDTO;
+import com.cavosh.api_cafe.shared.dto.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,27 +17,30 @@ public class CarritoController {
     private final CarritoCasoUso carritoCasoUso;
 
     @GetMapping("/{usuarioId}")
-    public ResponseEntity<Carrito> obtenerCarrito(@PathVariable Long usuarioId) {
-        return ResponseEntity.ok(carritoCasoUso.obtenerCarritoPorUsuario(usuarioId));
+    public ResponseEntity<ApiResponse<Carrito>> obtenerCarrito(@PathVariable Long usuarioId) {
+        Carrito carrito = carritoCasoUso.obtenerCarritoPorUsuario(usuarioId);
+        return ResponseEntity.ok(ApiResponse.success("Carrito obtenido exitosamente", carrito));
     }
 
     @PostMapping("/{usuarioId}/items")
-    public ResponseEntity<Carrito> agregarItem(
+    public ResponseEntity<ApiResponse<Carrito>> agregarItem(
             @PathVariable Long usuarioId,
             @Valid @RequestBody AgregarItemDTO dto) {
-        return ResponseEntity.ok(carritoCasoUso.agregarItem(usuarioId, dto));
+        Carrito carrito = carritoCasoUso.agregarItem(usuarioId, dto);
+        return ResponseEntity.ok(ApiResponse.success("Producto agregado al carrito exitosamente", carrito));
     }
 
     @DeleteMapping("/{usuarioId}/items/{itemId}")
-    public ResponseEntity<Carrito> eliminarItem(
+    public ResponseEntity<ApiResponse<Carrito>> eliminarItem(
             @PathVariable Long usuarioId,
             @PathVariable Long itemId) {
-        return ResponseEntity.ok(carritoCasoUso.eliminarItem(usuarioId, itemId));
+        Carrito carrito = carritoCasoUso.eliminarItem(usuarioId, itemId);
+        return ResponseEntity.ok(ApiResponse.success("Producto eliminado del carrito exitosamente", carrito));
     }
 
     @DeleteMapping("/{usuarioId}")
-    public ResponseEntity<Void> vaciarCarrito(@PathVariable Long usuarioId) {
+    public ResponseEntity<ApiResponse<Void>> vaciarCarrito(@PathVariable Long usuarioId) {
         carritoCasoUso.vaciarCarrito(usuarioId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResponse.success("Carrito vaciado exitosamente", null));
     }
 }

@@ -4,8 +4,10 @@ import com.cavosh.api_cafe.modules.pedidos.domain.model.Pedido;
 import com.cavosh.api_cafe.modules.pedidos.domain.ports.in.ConsultarPedidoCasoUso;
 import com.cavosh.api_cafe.modules.pedidos.domain.ports.in.CrearPedidoCasoUso;
 import com.cavosh.api_cafe.modules.pedidos.infrastructure.adapters.in.web.dtos.CrearPedidoRequestDTO;
+import com.cavosh.api_cafe.shared.dto.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,17 +22,22 @@ public class PedidoController {
     private final ConsultarPedidoCasoUso consultarPedidoCasoUso;
 
     @PostMapping
-    public ResponseEntity<Pedido> crearPedido(@Valid @RequestBody CrearPedidoRequestDTO dto) {
-        return ResponseEntity.ok(crearPedidoCasoUso.crearPedido(dto));
+    public ResponseEntity<ApiResponse<Pedido>> crearPedido(@Valid @RequestBody CrearPedidoRequestDTO dto) {
+        Pedido pedido = crearPedidoCasoUso.crearPedido(dto);
+        ApiResponse<Pedido> response = ApiResponse.success(
+                "Pedido creado exitosamente", pedido, HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Pedido> obtenerPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(consultarPedidoCasoUso.obtenerPorId(id));
+    public ResponseEntity<ApiResponse<Pedido>> obtenerPorId(@PathVariable Long id) {
+        Pedido pedido = consultarPedidoCasoUso.obtenerPorId(id);
+        return ResponseEntity.ok(ApiResponse.success("Pedido obtenido exitosamente", pedido));
     }
 
     @GetMapping("/usuario/{usuarioId}")
-    public ResponseEntity<List<Pedido>> obtenerPorUsuario(@PathVariable Long usuarioId) {
-        return ResponseEntity.ok(consultarPedidoCasoUso.obtenerPorUsuario(usuarioId));
+    public ResponseEntity<ApiResponse<List<Pedido>>> obtenerPorUsuario(@PathVariable Long usuarioId) {
+        List<Pedido> pedidos = consultarPedidoCasoUso.obtenerPorUsuario(usuarioId);
+        return ResponseEntity.ok(ApiResponse.success("Pedidos obtenidos exitosamente", pedidos));
     }
 }
