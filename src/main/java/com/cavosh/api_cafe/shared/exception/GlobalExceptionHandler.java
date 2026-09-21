@@ -1,6 +1,7 @@
 package com.cavosh.api_cafe.shared.exception;
 
 import com.cavosh.api_cafe.modules.auth.domain.exception.CodigoVerificacionInvalidoException;
+import com.cavosh.api_cafe.modules.auth.domain.exception.CuentaNoVerificadaException;
 import com.cavosh.api_cafe.modules.auth.domain.exception.EmailAlreadyExistsException;
 import com.cavosh.api_cafe.modules.auth.domain.exception.InvalidCredentialsException;
 import com.cavosh.api_cafe.modules.auth.domain.exception.InvalidTokenException;
@@ -91,6 +92,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleAccessDeniedException(AccessDeniedException ex) {
         log.warn("Acceso denegado: {}", ex.getMessage());
         return buildErrorResponse("No tienes permisos para realizar esta acción", HttpStatus.FORBIDDEN);
+    }
+
+    // ------------------------------------------------------------------
+    // 403 FORBIDDEN - Cuenta con correo aún no verificado
+    // ------------------------------------------------------------------
+    @ExceptionHandler(CuentaNoVerificadaException.class)
+    public ResponseEntity<ApiResponse<Void>> handleCuentaNoVerificada(CuentaNoVerificadaException ex) {
+        log.warn("Intento de login con cuenta no verificada: {}", ex.getMessage());
+        return buildErrorResponse(ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 
     // ------------------------------------------------------------------

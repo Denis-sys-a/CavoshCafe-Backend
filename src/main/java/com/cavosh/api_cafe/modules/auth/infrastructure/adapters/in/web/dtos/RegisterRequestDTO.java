@@ -14,11 +14,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RegisterRequestDTO {
 
-    @NotBlank(message = "El nombre es obligatorio")
-    private String nombre;
-
-    @NotBlank(message = "El apellido es obligatorio")
-    private String apellido;
+    @NotBlank(message = "El nombre completo es obligatorio")
+    private String fullName;
 
     @NotBlank(message = "El correo es obligatorio")
     @Email(message = "El correo debe ser válido")

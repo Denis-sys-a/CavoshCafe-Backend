@@ -41,7 +41,7 @@ public class UsuarioPersistenceAdapter implements UsuarioRepository {
     private UsuarioEntity aEntidad(Usuario modelo) {
         return UsuarioEntity.builder()
                 .id(modelo.getId())
-                .fullName(construirNombreCompleto(modelo))
+                .fullName(modelo.getFullName())
                 .correo(modelo.getEmail())
                 .password(modelo.getPassword())
                 .authProvider(modelo.getAuthProvider() != null ? modelo.getAuthProvider() : AuthProvider.LOCAL)
@@ -53,23 +53,12 @@ public class UsuarioPersistenceAdapter implements UsuarioRepository {
     private Usuario aDominio(UsuarioEntity entidad) {
         return Usuario.builder()
                 .id(entidad.getId())
-                .nombre(entidad.getFullName())
+                .fullName(entidad.getFullName())
                 .email(entidad.getCorreo())
                 .password(entidad.getPassword())
                 .telefono(entidad.getTelefono())
                 .authProvider(entidad.getAuthProvider())
                 .isVerified(entidad.isVerified())
                 .build();
-    }
-
-    /**
-     * La entidad guarda un único campo full_name; el dominio aún separa
-     * nombre/apellido (deuda heredada, ver nota en la respuesta del asistente).
-     */
-    private String construirNombreCompleto(Usuario modelo) {
-        if (modelo.getApellido() == null || modelo.getApellido().isBlank()) {
-            return modelo.getNombre();
-        }
-        return modelo.getNombre() + " " + modelo.getApellido();
     }
 }

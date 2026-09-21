@@ -6,6 +6,7 @@ import com.cavosh.api_cafe.modules.auth.application.usecases.EnviarCodigoVerific
 import com.cavosh.api_cafe.modules.auth.application.usecases.ValidarCodigoVerificacionCasoUso;
 import com.cavosh.api_cafe.modules.auth.infrastructure.adapters.in.web.dtos.AuthResponseDTO;
 import com.cavosh.api_cafe.modules.auth.infrastructure.adapters.in.web.dtos.EnviarCodigoRequestDTO;
+import com.cavosh.api_cafe.modules.auth.infrastructure.adapters.in.web.dtos.GoogleAuthRequestDTO;
 import com.cavosh.api_cafe.modules.auth.infrastructure.adapters.in.web.dtos.LoginRequestDTO;
 import com.cavosh.api_cafe.modules.auth.infrastructure.adapters.in.web.dtos.RegisterRequestDTO;
 import com.cavosh.api_cafe.modules.auth.infrastructure.adapters.in.web.dtos.ValidarCodigoRequestDTO;
@@ -38,6 +39,14 @@ public class AuthController {
     public ResponseEntity<ApiResponse<AuthResponseDTO>> login(@Valid @RequestBody LoginRequestDTO request) {
         AuthResponseDTO resultado = autenticarUsuarioCasoUso.ejecutar(request);
         ApiResponse<AuthResponseDTO> response = ApiResponse.success("Inicio de sesión exitoso", resultado);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/google")
+    public ResponseEntity<ApiResponse<AuthResponseDTO>> loginConGoogle(
+            @Valid @RequestBody GoogleAuthRequestDTO request) {
+        AuthResponseDTO resultado = registrarUsuarioCasoUso.ejecutarConGoogle(request);
+        ApiResponse<AuthResponseDTO> response = ApiResponse.success("Autenticación con Google exitosa", resultado);
         return ResponseEntity.ok(response);
     }
 
