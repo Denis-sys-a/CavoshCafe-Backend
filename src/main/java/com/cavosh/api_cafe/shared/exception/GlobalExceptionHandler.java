@@ -1,5 +1,6 @@
 package com.cavosh.api_cafe.shared.exception;
 
+import com.cavosh.api_cafe.modules.auth.domain.exception.CodigoVerificacionInvalidoException;
 import com.cavosh.api_cafe.modules.auth.domain.exception.EmailAlreadyExistsException;
 import com.cavosh.api_cafe.modules.auth.domain.exception.InvalidCredentialsException;
 import com.cavosh.api_cafe.modules.auth.domain.exception.InvalidTokenException;
@@ -61,6 +62,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({EmptyCartException.class, InvalidPromoCodeException.class})
     public ResponseEntity<ApiResponse<Void>> handleCarritoBadRequest(RuntimeException ex) {
         log.warn("Solicitud inválida sobre el carrito: {}", ex.getMessage());
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    // ------------------------------------------------------------------
+    // 400 BAD REQUEST - Código OTP de verificación inválido / expirado / reenvío prematuro
+    // ------------------------------------------------------------------
+    @ExceptionHandler(CodigoVerificacionInvalidoException.class)
+    public ResponseEntity<ApiResponse<Void>> handleCodigoVerificacionInvalido(
+            CodigoVerificacionInvalidoException ex) {
+        log.warn("Código de verificación rechazado: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 

@@ -31,6 +31,17 @@ CREATE TABLE tokens_verificacion (
     CONSTRAINT fk_token_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
+-- Codigos OTP de verificacion de correo (no dependen de un usuario existente)
+CREATE TABLE codigos_verificacion (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(150) NOT NULL,
+    codigo VARCHAR(6) NOT NULL,
+    expiracion DATETIME NOT NULL,
+    usado BOOLEAN NOT NULL DEFAULT FALSE,
+    fecha_creacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_codigo_email_usado (email, usado, fecha_creacion)
+) ENGINE=InnoDB;
+
 CREATE TABLE usuario_direcciones (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     usuario_id BIGINT NOT NULL,
