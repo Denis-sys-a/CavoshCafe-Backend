@@ -13,4 +13,12 @@ public interface EmailService {
      * @param codigo código de 6 dígitos
      */
     void enviarCodigoVerificacion(String email, String codigo);
+
+    /**
+     * Envía el código OTP de recuperación de contraseña al correo indicado.
+     *
+     * @param email  destinatario
+     * @param codigo código de 6 dígitos
+     */
+    void enviarCodigoRecuperacion(String email, String codigo);
 }

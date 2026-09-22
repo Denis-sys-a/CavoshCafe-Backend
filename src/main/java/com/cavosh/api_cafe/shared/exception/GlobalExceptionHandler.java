@@ -1,10 +1,12 @@
 package com.cavosh.api_cafe.shared.exception;
 
+import com.cavosh.api_cafe.modules.auth.domain.exception.CodigoRecuperacionInvalidoException;
 import com.cavosh.api_cafe.modules.auth.domain.exception.CodigoVerificacionInvalidoException;
 import com.cavosh.api_cafe.modules.auth.domain.exception.CuentaNoVerificadaException;
 import com.cavosh.api_cafe.modules.auth.domain.exception.EmailAlreadyExistsException;
 import com.cavosh.api_cafe.modules.auth.domain.exception.InvalidCredentialsException;
 import com.cavosh.api_cafe.modules.auth.domain.exception.InvalidTokenException;
+import com.cavosh.api_cafe.modules.auth.domain.exception.ResetTokenInvalidoException;
 import com.cavosh.api_cafe.modules.carrito.domain.exception.EmptyCartException;
 import com.cavosh.api_cafe.modules.carrito.domain.exception.InvalidPromoCodeException;
 import com.cavosh.api_cafe.modules.productos.domain.exception.DuplicateFavoriteException;
@@ -73,6 +75,27 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleCodigoVerificacionInvalido(
             CodigoVerificacionInvalidoException ex) {
         log.warn("Código de verificación rechazado: {}", ex.getMessage());
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    // ------------------------------------------------------------------
+    // 400 BAD REQUEST - Código OTP de recuperación de contraseña inválido /
+    // expirado / reenvío prematuro (CodigoRecuperacionExpiradoException
+    // extiende CodigoRecuperacionInvalidoException, por lo que cae aquí también)
+    // ------------------------------------------------------------------
+    @ExceptionHandler(CodigoRecuperacionInvalidoException.class)
+    public ResponseEntity<ApiResponse<Void>> handleCodigoRecuperacionInvalido(
+            CodigoRecuperacionInvalidoException ex) {
+        log.warn("Código de recuperación de contraseña rechazado: {}", ex.getMessage());
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    // ------------------------------------------------------------------
+    // 400 BAD REQUEST - Token de reseteo de contraseña inválido, usado o expirado
+    // ------------------------------------------------------------------
+    @ExceptionHandler(ResetTokenInvalidoException.class)
+    public ResponseEntity<ApiResponse<Void>> handleResetTokenInvalido(ResetTokenInvalidoException ex) {
+        log.warn("Token de reseteo de contraseña rechazado: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 

@@ -44,6 +44,25 @@ CREATE TABLE codigos_verificacion (
     INDEX idx_codigo_correo_usado (correo, usado, fecha_creacion)
 ) ENGINE=InnoDB;
 
+-- Codigos OTP de recuperacion de contrasena (Fase 3). Tabla separada de
+-- codigos_verificacion a proposito: evita que un codigo de "olvide mi
+-- contrasena" pueda usarse para marcar un correo como verificado, o viceversa.
+-- Flujo de 2 pasos: se valida "codigo" (OTP) y, una vez verificado, se emite
+-- "token" (resetToken UUID de vida corta) con el que se hace el reset final.
+CREATE TABLE codigos_recuperacion_password (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    correo VARCHAR(150) NOT NULL,
+    codigo VARCHAR(6) NOT NULL,
+    token VARCHAR(36),
+    fecha_expiracion_codigo TIMESTAMP NOT NULL,
+    fecha_expiracion_token TIMESTAMP NULL,
+    verificado BOOLEAN NOT NULL DEFAULT FALSE,
+    usado BOOLEAN NOT NULL DEFAULT FALSE,
+    fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_recuperacion_correo_usado (correo, usado, fecha_creacion),
+    INDEX idx_recuperacion_token (token)
+) ENGINE=InnoDB;
+
 CREATE TABLE usuario_direcciones (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     usuario_id BIGINT NOT NULL,

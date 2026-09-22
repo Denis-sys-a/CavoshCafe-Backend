@@ -28,6 +28,9 @@ public class EmailServiceImpl implements EmailService {
     @Value("${app.otp.expiration-minutes:10}")
     private int minutosExpiracion;
 
+    @Value("${app.password-reset.otp-expiration-minutes:15}")
+    private int minutosExpiracionRecuperacion;
+
     @Override
     public void enviarCodigoVerificacion(String toEmail, String codigo) {
         try {
@@ -48,7 +51,35 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+    @Override
+    public void enviarCodigoRecuperacion(String toEmail, String codigo) {
+        try {
+            MimeMessage mensaje = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mensaje, true, StandardCharsets.UTF_8.name());
+
+            helper.setFrom(remitente, "Cavosh Café");
+            helper.setTo(toEmail);
+            helper.setSubject("Recupera tu contraseña - Cavosh Café");
+            helper.setText(construirCuerpoHtml(codigo, "Recuperaci&oacute;n de contrase&ntilde;a",
+                    "Usa el siguiente c&oacute;digo para restablecer tu contrase&ntilde;a:",
+                    minutosExpiracionRecuperacion), true);
+
+            mailSender.send(mensaje);
+            log.info("Código de recuperación de contraseña enviado a {}", enmascarar(toEmail));
+
+        } catch (MessagingException | MailException | java.io.UnsupportedEncodingException e) {
+            log.error("Error al enviar el código de recuperación de contraseña a {}", enmascarar(toEmail), e);
+            throw new IllegalStateException("No se pudo enviar el correo de recuperación", e);
+        }
+    }
+
     private String construirCuerpoHtml(String codigo) {
+        return construirCuerpoHtml(codigo, "Verificaci&oacute;n de correo electr&oacute;nico",
+                "Usa el siguiente c&oacute;digo para confirmar tu direcci&oacute;n de correo:",
+                minutosExpiracion);
+    }
+
+    private String construirCuerpoHtml(String codigo, String subtitulo, String instruccion, int minutos) {
         return """
                 <!DOCTYPE html>
                 <html lang="es">
@@ -65,12 +96,12 @@ public class EmailServiceImpl implements EmailService {
                           </tr>
                           <tr>
                             <td align="center" style="font-size:15px;color:#555555;padding-bottom:24px;">
-                              Verificaci&oacute;n de correo electr&oacute;nico
+                              %s
                             </td>
                           </tr>
                           <tr>
                             <td align="center" style="font-size:15px;color:#333333;padding-bottom:16px;">
-                              Usa el siguiente c&oacute;digo para confirmar tu direcci&oacute;n de correo:
+                              %s
                             </td>
                           </tr>
                           <tr>
@@ -96,7 +127,7 @@ public class EmailServiceImpl implements EmailService {
                   </table>
                 </body>
                 </html>
-                """.formatted(codigo, minutosExpiracion);
+                """.formatted(subtitulo, instruccion, codigo, minutos);
     }
 
     /** Evita escribir el correo completo en los logs. */
