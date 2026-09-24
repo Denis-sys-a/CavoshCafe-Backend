@@ -1,5 +1,6 @@
 package com.cavosh.api_cafe.modules.pedidos.infrastructure.adapters.in.web.controllers;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.cavosh.api_cafe.modules.pedidos.domain.model.Pedido;
 import com.cavosh.api_cafe.modules.pedidos.domain.ports.in.ConsultarPedidoCasoUso;
 import com.cavosh.api_cafe.modules.pedidos.domain.ports.in.CrearPedidoCasoUso;
@@ -35,6 +36,9 @@ public class PedidoController {
         return ResponseEntity.ok(ApiResponse.success("Pedido obtenido exitosamente", pedido));
     }
 
+    // "authentication.principal" es el CustomUserDetails que carga el
+    // JwtAuthenticationFilter; expone "id" mediante su getId()
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLEADO') or #usuarioId == authentication.principal.id")
     @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<ApiResponse<List<Pedido>>> obtenerPorUsuario(@PathVariable Long usuarioId) {
         List<Pedido> pedidos = consultarPedidoCasoUso.obtenerPorUsuario(usuarioId);

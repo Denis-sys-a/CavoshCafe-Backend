@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,6 +34,7 @@ public class SucursalController {
         return ResponseEntity.ok(ApiResponse.success("Sucursal obtenida exitosamente", sucursal));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ApiResponse<Sucursal>> crear(@Valid @RequestBody SucursalDTO dto) {
         Sucursal sucursal = gestionarSucursalCasoUso.crear(dto);
@@ -41,12 +43,15 @@ public class SucursalController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Sucursal>> actualizar(@PathVariable Long id, @Valid @RequestBody SucursalDTO dto) {
+    public ResponseEntity<ApiResponse<Sucursal>> actualizar(@PathVariable Long id,
+            @Valid @RequestBody SucursalDTO dto) {
         Sucursal sucursal = gestionarSucursalCasoUso.actualizar(id, dto);
         return ResponseEntity.ok(ApiResponse.success("Sucursal actualizada exitosamente", sucursal));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> eliminar(@PathVariable Long id) {
         gestionarSucursalCasoUso.eliminar(id);

@@ -1,5 +1,6 @@
 package com.cavosh.api_cafe.modules.productos.infrastructure.adapters.in.web.controllers;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.cavosh.api_cafe.modules.productos.domain.model.Categoria;
 import com.cavosh.api_cafe.modules.productos.domain.model.Producto;
 import com.cavosh.api_cafe.modules.productos.domain.ports.in.CategoriaCasoUso;
@@ -34,6 +35,7 @@ public class ProductController {
         return ResponseEntity.ok(ApiResponse.success("Producto obtenido exitosamente", producto));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ApiResponse<Producto>> crear(@Valid @RequestBody ProductDTO dto) {
         Producto producto = productoCasoUso.crear(dto);
@@ -42,12 +44,14 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<Producto>> actualizar(@PathVariable Long id, @Valid @RequestBody ProductDTO dto) {
         Producto producto = productoCasoUso.actualizar(id, dto);
         return ResponseEntity.ok(ApiResponse.success("Producto actualizado exitosamente", producto));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> eliminar(@PathVariable Long id) {
         productoCasoUso.eliminar(id);
