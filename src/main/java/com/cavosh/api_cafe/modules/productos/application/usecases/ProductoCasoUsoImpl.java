@@ -40,6 +40,7 @@ public class ProductoCasoUsoImpl implements ProductoCasoUso, CategoriaCasoUso {
                 .precio(dto.getPrecio())
                 .imagenUrl(dto.getImagenUrl())
                 .disponible(dto.getDisponible())
+                .categoria(categoriaDesdeId(dto.getCategoriaId()))
                 .build();
         return productoRepositorioPuerto.guardar(producto);
     }
@@ -52,6 +53,7 @@ public class ProductoCasoUsoImpl implements ProductoCasoUso, CategoriaCasoUso {
         productoExistente.setPrecio(dto.getPrecio());
         productoExistente.setImagenUrl(dto.getImagenUrl());
         productoExistente.setDisponible(dto.getDisponible());
+        productoExistente.setCategoria(categoriaDesdeId(dto.getCategoriaId()));
         return productoRepositorioPuerto.guardar(productoExistente);
     }
 
@@ -76,5 +78,10 @@ public class ProductoCasoUsoImpl implements ProductoCasoUso, CategoriaCasoUso {
         return obtenerTodos().stream()
                 .filter(producto -> !noDisponiblesEnSucursal.contains(producto.getId()))
                 .toList();
+    }
+
+    /** El adaptador de persistencia resuelve y valida el id (404 si la categoría no existe). */
+    private Categoria categoriaDesdeId(Long categoriaId) {
+        return Categoria.builder().id(categoriaId).build();
     }
 }

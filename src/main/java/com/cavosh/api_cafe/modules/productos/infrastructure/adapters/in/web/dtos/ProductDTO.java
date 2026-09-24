@@ -27,5 +27,6 @@ public class ProductDTO {
 
     private String imagenUrl;
     private Boolean disponible;
+    @NotNull(message = "La categoría es obligatoria")
     private Long categoriaId;
 }
