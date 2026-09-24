@@ -1,5 +1,6 @@
 package com.cavosh.api_cafe.shared.exception;
 
+import com.cavosh.api_cafe.shared.security.exception.JwtAuthenticationException;
 import com.cavosh.api_cafe.modules.auth.domain.exception.CodigoRecuperacionInvalidoException;
 import com.cavosh.api_cafe.modules.auth.domain.exception.CodigoVerificacionInvalidoException;
 import com.cavosh.api_cafe.modules.auth.domain.exception.CuentaNoVerificadaException;
@@ -55,8 +56,7 @@ public class GlobalExceptionHandler {
         ApiResponse<Object> response = ApiResponse.error(
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
                 "Error de validación en la petición",
-                HttpStatus.BAD_REQUEST.value()
-        );
+                HttpStatus.BAD_REQUEST.value());
         response.setData(errors);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -65,7 +65,7 @@ public class GlobalExceptionHandler {
     // ------------------------------------------------------------------
     // 400 BAD REQUEST - Reglas de negocio del carrito
     // ------------------------------------------------------------------
-    @ExceptionHandler({EmptyCartException.class, InvalidPromoCodeException.class})
+    @ExceptionHandler({ EmptyCartException.class, InvalidPromoCodeException.class })
     public ResponseEntity<ApiResponse<Void>> handleCarritoBadRequest(RuntimeException ex) {
         log.warn("Solicitud inválida sobre el carrito: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
@@ -75,14 +75,15 @@ public class GlobalExceptionHandler {
     // 400 BAD REQUEST - Cupón promocional inválido / vencido / sin cupo, o
     // pedido DELIVERY sin dirección de entrega
     // ------------------------------------------------------------------
-    @ExceptionHandler({CuponInvalidoException.class, DireccionRequeridaException.class})
+    @ExceptionHandler({ CuponInvalidoException.class, DireccionRequeridaException.class })
     public ResponseEntity<ApiResponse<Void>> handlePedidoBadRequest(RuntimeException ex) {
         log.warn("Solicitud inválida sobre el pedido: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     // ------------------------------------------------------------------
-    // 400 BAD REQUEST - Código OTP de verificación inválido / expirado / reenvío prematuro
+    // 400 BAD REQUEST - Código OTP de verificación inválido / expirado / reenvío
+    // prematuro
     // ------------------------------------------------------------------
     @ExceptionHandler(CodigoVerificacionInvalidoException.class)
     public ResponseEntity<ApiResponse<Void>> handleCodigoVerificacionInvalido(
@@ -115,9 +116,23 @@ public class GlobalExceptionHandler {
     // ------------------------------------------------------------------
     // 401 UNAUTHORIZED - Credenciales o token inválidos
     // ------------------------------------------------------------------
-    @ExceptionHandler({InvalidCredentialsException.class, InvalidTokenException.class, BadCredentialsException.class})
+    @ExceptionHandler({ InvalidCredentialsException.class, InvalidTokenException.class, BadCredentialsException.class })
     public ResponseEntity<ApiResponse<Void>> handleAuthenticationException(RuntimeException ex) {
         log.warn("Fallo de autenticación: {}", ex.getMessage());
+        return buildErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    // ------------------------------------------------------------------
+    // 401 UNAUTHORIZED - Token JWT inválido/expirado (fallback)
+    //
+    // En condiciones normales, JwtAuthenticationFilter ya intercepta y
+    // responde estas excepciones directamente (se lanzan ANTES del
+    // DispatcherServlet). Este handler es una red de seguridad por si
+    // JwtService se llega a usar desde algún caso de uso o controlador.
+    // ------------------------------------------------------------------
+    @ExceptionHandler(JwtAuthenticationException.class)
+    public ResponseEntity<ApiResponse<Void>> handleJwtAuthenticationException(JwtAuthenticationException ex) {
+        log.warn("Error de autenticación JWT: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 
@@ -142,7 +157,7 @@ public class GlobalExceptionHandler {
     // ------------------------------------------------------------------
     // 404 NOT FOUND - Recurso no encontrado
     // ------------------------------------------------------------------
-    @ExceptionHandler({ResourceNotFoundException.class, PromocionNoEncontradaException.class})
+    @ExceptionHandler({ ResourceNotFoundException.class, PromocionNoEncontradaException.class })
     public ResponseEntity<ApiResponse<Void>> handleResourceNotFoundException(RuntimeException ex) {
         log.warn("Recurso no encontrado: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
@@ -151,7 +166,7 @@ public class GlobalExceptionHandler {
     // ------------------------------------------------------------------
     // 409 CONFLICT - Recursos duplicados
     // ------------------------------------------------------------------
-    @ExceptionHandler({EmailAlreadyExistsException.class, DuplicateFavoriteException.class})
+    @ExceptionHandler({ EmailAlreadyExistsException.class, DuplicateFavoriteException.class })
     public ResponseEntity<ApiResponse<Void>> handleConflictException(RuntimeException ex) {
         log.warn("Conflicto de datos: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);

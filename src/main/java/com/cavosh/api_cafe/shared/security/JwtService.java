@@ -112,7 +112,6 @@ public class JwtService {
     /**
      * Valida que el token tenga una firma correcta y no haya expirado.
      * No lanza excepciones: retorna {@code false} ante cualquier problema
-     * (útil para el filtro de seguridad de la Parte 2).
      */
     public boolean esTokenValido(String token) {
         try {
