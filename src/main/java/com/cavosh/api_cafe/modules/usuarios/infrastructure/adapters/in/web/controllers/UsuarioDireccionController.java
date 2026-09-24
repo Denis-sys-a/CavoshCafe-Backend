@@ -1,5 +1,7 @@
 package com.cavosh.api_cafe.modules.usuarios.infrastructure.adapters.in.web.controllers;
 
+import com.cavosh.api_cafe.modules.usuarios.infrastructure.adapters.in.web.dtos.UsuarioResponseDTO;
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.cavosh.api_cafe.modules.usuarios.domain.model.Direccion;
 import com.cavosh.api_cafe.modules.usuarios.domain.model.Usuario;
 import com.cavosh.api_cafe.modules.usuarios.domain.ports.in.ConsultarUsuarioCasoUso;
@@ -22,10 +24,15 @@ public class UsuarioDireccionController {
     private final ConsultarUsuarioCasoUso consultarUsuarioCasoUso;
     private final RegistrarDireccionCasoUso registrarDireccionCasoUso;
 
+    // Un CLIENTE solo puede consultar SU PROPIO perfil (id debe coincidir con
+    // el id embebido en su token); ADMIN y EMPLEADO pueden consultar el
+    // perfil de cualquier usuario.
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLEADO') or #id == authentication.principal.id")
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Usuario>> obtenerPorId(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<UsuarioResponseDTO>> obtenerPorId(@PathVariable Long id) {
         Usuario usuario = consultarUsuarioCasoUso.obtenerPorId(id);
-        return ResponseEntity.ok(ApiResponse.success("Usuario obtenido exitosamente", usuario));
+        UsuarioResponseDTO response = UsuarioResponseDTO.fromDomain(usuario);
+        return ResponseEntity.ok(ApiResponse.success("Usuario obtenido exitosamente", response));
     }
 
     @PostMapping("/{usuarioId}/direcciones")

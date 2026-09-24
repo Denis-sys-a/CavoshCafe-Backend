@@ -1,5 +1,6 @@
 package com.cavosh.api_cafe.shared.exception;
 
+import com.cavosh.api_cafe.modules.productos.domain.exception.OpcionProductoInvalidaException;
 import com.cavosh.api_cafe.shared.security.exception.JwtAuthenticationException;
 import com.cavosh.api_cafe.modules.auth.domain.exception.CodigoRecuperacionInvalidoException;
 import com.cavosh.api_cafe.modules.auth.domain.exception.CodigoVerificacionInvalidoException;
@@ -189,6 +190,12 @@ public class GlobalExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(OpcionProductoInvalidaException.class)
+    public ResponseEntity<ApiResponse<Void>> handleOpcionProductoInvalida(OpcionProductoInvalidaException ex) {
+        log.warn("Selección de opciones de producto inválida: {}", ex.getMessage());
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
     // ------------------------------------------------------------------
     // Helpers
     // ------------------------------------------------------------------
@@ -196,4 +203,5 @@ public class GlobalExceptionHandler {
         ApiResponse<Void> response = ApiResponse.error(message, status);
         return ResponseEntity.status(status).body(response);
     }
+
 }
