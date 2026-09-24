@@ -10,7 +10,7 @@ import com.cavosh.api_cafe.modules.auth.infrastructure.adapters.in.web.dtos.Logi
 import com.cavosh.api_cafe.modules.usuarios.domain.model.AuthProvider;
 import com.cavosh.api_cafe.modules.usuarios.domain.model.Usuario;
 import com.cavosh.api_cafe.modules.usuarios.domain.ports.out.UsuarioRepository;
-import com.cavosh.api_cafe.shared.security.JwtTokenProvider;
+import com.cavosh.api_cafe.shared.security.JwtService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,7 @@ public class AutenticarUsuarioCasoUsoImpl implements AutenticarUsuarioCasoUso {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtService jwtService;
 
     @Override
     public AuthResponseDTO ejecutar(LoginRequestDTO request) {
@@ -51,7 +51,7 @@ public class AutenticarUsuarioCasoUsoImpl implements AutenticarUsuarioCasoUso {
         }
 
         String rol = usuario.getRol() != null ? usuario.getRol() : ROL_POR_DEFECTO;
-        String token = jwtTokenProvider.generarToken(usuario.getEmail(), rol);
+        String token = jwtService.generarAccessToken(usuario.getEmail(), usuario.getId(), rol);
 
         log.info("Inicio de sesión exitoso");
 

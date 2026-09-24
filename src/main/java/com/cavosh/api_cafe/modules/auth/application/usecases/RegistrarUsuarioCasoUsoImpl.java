@@ -10,7 +10,7 @@ import com.cavosh.api_cafe.modules.auth.infrastructure.adapters.in.web.dtos.Regi
 import com.cavosh.api_cafe.modules.usuarios.domain.model.AuthProvider;
 import com.cavosh.api_cafe.modules.usuarios.domain.model.Usuario;
 import com.cavosh.api_cafe.modules.usuarios.domain.ports.out.UsuarioRepository;
-import com.cavosh.api_cafe.shared.security.JwtTokenProvider;
+import com.cavosh.api_cafe.shared.security.JwtService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ public class RegistrarUsuarioCasoUsoImpl implements RegistrarUsuarioCasoUso {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtService jwtService;
     private final EnviarCodigoVerificacionCasoUso enviarCodigoVerificacionCasoUso;
 
     // ------------------------------------------------------------------
@@ -79,7 +79,7 @@ public class RegistrarUsuarioCasoUsoImpl implements RegistrarUsuarioCasoUso {
                 .orElseGet(() -> registrarNuevoUsuarioGoogle(email, request.getFullName()));
 
         String rol = usuario.getRol() != null ? usuario.getRol() : ROL_POR_DEFECTO;
-        String token = jwtTokenProvider.generarToken(usuario.getEmail(), rol);
+        String token = jwtService.generarAccessToken(usuario.getEmail(), usuario.getId(), rol);
 
         log.info("Autenticación con Google exitosa");
 
