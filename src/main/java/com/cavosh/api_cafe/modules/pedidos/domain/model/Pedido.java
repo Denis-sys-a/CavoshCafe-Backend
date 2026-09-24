@@ -1,6 +1,8 @@
 package com.cavosh.api_cafe.modules.pedidos.domain.model;
 
 import com.cavosh.api_cafe.modules.pedidos.domain.enums.EstadoPedido;
+import com.cavosh.api_cafe.modules.pedidos.domain.enums.MetodoEntrega;
+import com.cavosh.api_cafe.modules.promociones.domain.model.Promocion;
 import com.cavosh.api_cafe.modules.sucursales.domain.model.Sucursal;
 import com.cavosh.api_cafe.modules.usuarios.domain.model.Direccion;
 import com.cavosh.api_cafe.modules.usuarios.domain.model.Usuario;
@@ -24,6 +26,8 @@ public class Pedido {
     private Usuario usuario;
     private Sucursal sucursal;
     private Direccion direccion;
+    private MetodoEntrega metodoEntrega;
+    private Promocion codigoPromocional;
     private EstadoPedido estado;
     private BigDecimal total;
     private LocalDateTime fechaCreacion;

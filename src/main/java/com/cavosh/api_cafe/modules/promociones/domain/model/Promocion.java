@@ -1,9 +1,19 @@
 package com.cavosh.api_cafe.modules.promociones.domain.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Promocion {
+
     private Long id;
     private String codigo;
     private String descripcion;
@@ -13,48 +23,38 @@ public class Promocion {
     private LocalDateTime fechaFin;
     private boolean activo;
 
-    public Promocion() {}
+    /**
+     * Límite global de usos del cupón. NULL = sin límite.
+     */
+    private Integer usoMaximo;
 
-    public Promocion(Long id, String codigo, String descripcion, BigDecimal descuento, 
-                     TipoDescuento tipoDescuento, LocalDateTime fechaInicio, 
-                     LocalDateTime fechaFin, boolean activo) {
-        this.id = id;
-        this.codigo = codigo;
-        this.descripcion = descripcion;
-        this.descuento = descuento;
-        this.tipoDescuento = tipoDescuento;
-        this.fechaInicio = fechaInicio;
-        this.fechaFin = fechaFin;
-        this.activo = activo;
-    }
+    /**
+     * Cantidad de veces que el cupón ya fue consumido (global).
+     */
+    @Builder.Default
+    private int usosActuales = 0;
+
+    /**
+     * Límite de veces que un mismo usuario puede usar este cupón. NULL = sin límite por usuario.
+     */
+    private Integer usoMaximoPorUsuario;
 
     public boolean esVálida() {
         LocalDateTime ahora = LocalDateTime.now();
         return activo && ahora.isAfter(fechaInicio) && ahora.isBefore(fechaFin);
     }
 
-    // Getters y Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    /**
+     * Indica si el cupón todavía tiene cupo global disponible.
+     */
+    public boolean tieneCupoGlobalDisponible() {
+        return usoMaximo == null || usosActuales < usoMaximo;
+    }
 
-    public String getCodigo() { return codigo; }
-    public void setCodigo(String codigo) { this.codigo = codigo; }
-
-    public String getDescripcion() { return descripcion; }
-    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
-
-    public BigDecimal getDescuento() { return descuento; }
-    public void setDescuento(BigDecimal descuento) { this.descuento = descuento; }
-
-    public TipoDescuento getTipoDescuento() { return tipoDescuento; }
-    public void setTipoDescuento(TipoDescuento tipoDescuento) { this.tipoDescuento = tipoDescuento; }
-
-    public LocalDateTime getFechaInicio() { return fechaInicio; }
-    public void setFechaInicio(LocalDateTime fechaInicio) { this.fechaInicio = fechaInicio; }
-
-    public LocalDateTime getFechaFin() { return fechaFin; }
-    public void setFechaFin(LocalDateTime fechaFin) { this.fechaFin = fechaFin; }
-
-    public boolean isActivo() { return activo; }
-    public void setActivo(boolean activo) { this.activo = activo; }
+    /**
+     * Indica si, dado cuántas veces ya lo usó un usuario puntual, aún puede volver a usarlo.
+     */
+    public boolean puedeUsarUsuario(int usosPreviosDelUsuario) {
+        return usoMaximoPorUsuario == null || usosPreviosDelUsuario < usoMaximoPorUsuario;
+    }
 }

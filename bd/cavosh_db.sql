@@ -168,6 +168,16 @@ CREATE TABLE carrito_item_opciones (
     CONSTRAINT fk_cio_valor FOREIGN KEY (producto_opcion_valor_id) REFERENCES producto_opcion_valores(id)
 ) ENGINE=InnoDB;
 
+-- Disponibilidad / stock de un producto por sucursal
+CREATE TABLE producto_sucursal_stock (
+    producto_id BIGINT NOT NULL,
+    sucursal_id BIGINT NOT NULL,
+    disponible BOOLEAN NOT NULL DEFAULT TRUE,
+    PRIMARY KEY (producto_id, sucursal_id),
+    CONSTRAINT fk_pss_producto FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE,
+    CONSTRAINT fk_pss_sucursal FOREIGN KEY (sucursal_id) REFERENCES sucursales(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
 -- ============================================
 -- 5. PROMOCIONES
 -- ============================================
@@ -179,7 +189,10 @@ CREATE TABLE codigos_promocionales (
     valor_descuento DECIMAL(10,2) NOT NULL,
     valido_desde DATETIME NOT NULL,
     valido_hasta DATETIME NOT NULL,
-    activo BOOLEAN NOT NULL DEFAULT TRUE
+    activo BOOLEAN NOT NULL DEFAULT TRUE,
+    uso_maximo INT DEFAULT NULL,                    -- Límite global de usos del cupón (NULL = sin límite)
+    usos_actuales INT NOT NULL DEFAULT 0,            -- Contador de usos ya consumidos
+    uso_maximo_por_usuario INT DEFAULT 1             -- Límite de veces que un mismo usuario puede usarlo
 ) ENGINE=InnoDB;
 
 -- ============================================
@@ -206,6 +219,14 @@ CREATE TABLE pedidos (
     CONSTRAINT fk_pedido_direccion FOREIGN KEY (direccion_id) REFERENCES usuario_direcciones(id),
     CONSTRAINT fk_pedido_codigo FOREIGN KEY (codigo_promocional_id) REFERENCES codigos_promocionales(id)
 ) ENGINE=InnoDB;
+
+-- Garantiza a nivel de BD que un pedido DELIVERY siempre tenga dirección asociada
+ALTER TABLE pedidos
+ADD CONSTRAINT chk_direccion_delivery
+CHECK (
+    (metodo_entrega = 'DELIVERY' AND direccion_id IS NOT NULL) OR
+    (metodo_entrega = 'RECOJO')
+);
 
 CREATE TABLE pedido_items (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -259,6 +280,19 @@ CREATE TABLE notificaciones (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_notificacion_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
+-- ============================================
+-- 8. ÍNDICES DE OPTIMIZACIÓN
+-- ============================================
+
+-- Historial de pedidos por usuario filtrado por estado (ej. "mis pedidos activos")
+CREATE INDEX idx_pedidos_usuario_estado ON pedidos(usuario_id, estado);
+
+-- Catálogo filtrado por categoría, excluyendo productos inactivos
+CREATE INDEX idx_productos_categoria_activo ON productos(categoria, activo);
+
+-- Línea de tiempo de estados de un pedido puntual
+CREATE INDEX idx_historial_pedidos_pedido ON historial_estado_pedidos(pedido_id);
 
 -- ============================================
 -- DATOS DE PRUEBA

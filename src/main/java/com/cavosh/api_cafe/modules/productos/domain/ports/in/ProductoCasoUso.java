@@ -11,4 +11,10 @@ public interface ProductoCasoUso {
     Producto crear(ProductDTO dto);
     Producto actualizar(Long id, ProductDTO dto);
     void eliminar(Long id);
+
+    /**
+     * Catálogo de productos disponibles en una sucursal puntual: excluye los
+     * productos marcados explícitamente como no disponibles (producto_sucursal_stock).
+     */
+    List<Producto> obtenerDisponiblesPorSucursal(Long sucursalId);
 }

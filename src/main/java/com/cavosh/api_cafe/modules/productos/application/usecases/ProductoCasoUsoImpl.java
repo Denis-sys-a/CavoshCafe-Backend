@@ -6,17 +6,20 @@ import com.cavosh.api_cafe.modules.productos.domain.model.Producto;
 import com.cavosh.api_cafe.modules.productos.domain.ports.in.CategoriaCasoUso;
 import com.cavosh.api_cafe.modules.productos.domain.ports.in.ProductoCasoUso;
 import com.cavosh.api_cafe.modules.productos.domain.ports.out.ProductoRepositorioPuerto;
+import com.cavosh.api_cafe.modules.productos.domain.ports.out.ProductoSucursalStockRepositorioPuerto;
 import com.cavosh.api_cafe.modules.productos.infrastructure.adapters.in.web.dtos.ProductDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class ProductoCasoUsoImpl implements ProductoCasoUso, CategoriaCasoUso {
 
     private final ProductoRepositorioPuerto productoRepositorioPuerto;
+    private final ProductoSucursalStockRepositorioPuerto stockRepositorioPuerto;
 
     @Override
     public List<Producto> obtenerTodos() {
@@ -61,5 +64,17 @@ public class ProductoCasoUsoImpl implements ProductoCasoUso, CategoriaCasoUso {
     @Override
     public List<Categoria> obtenerTodas() {
         return productoRepositorioPuerto.obtenerTodasCategorias();
+    }
+
+    @Override
+    public List<Producto> obtenerDisponiblesPorSucursal(Long sucursalId) {
+        // Un producto sin fila en producto_sucursal_stock se considera disponible
+        // por defecto; solo se descartan los marcados explícitamente como no disponibles.
+        Set<Long> noDisponiblesEnSucursal =
+                Set.copyOf(stockRepositorioPuerto.obtenerIdsNoDisponiblesPorSucursal(sucursalId));
+
+        return obtenerTodos().stream()
+                .filter(producto -> !noDisponiblesEnSucursal.contains(producto.getId()))
+                .toList();
     }
 }

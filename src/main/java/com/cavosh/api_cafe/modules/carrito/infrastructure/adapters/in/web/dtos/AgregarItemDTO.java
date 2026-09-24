@@ -7,6 +7,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -19,4 +22,11 @@ public class AgregarItemDTO {
     @NotNull(message = "La cantidad es obligatoria")
     @Positive(message = "La cantidad debe ser mayor a cero")
     private Integer cantidad;
+
+    /**
+     * IDs de producto_opcion_valores elegidos (tamaño, tipo de leche, etc.).
+     * Vacío o null = producto sin personalización.
+     */
+    @Builder.Default
+    private List<Long> opcionesValoresIds = new ArrayList<>();
 }

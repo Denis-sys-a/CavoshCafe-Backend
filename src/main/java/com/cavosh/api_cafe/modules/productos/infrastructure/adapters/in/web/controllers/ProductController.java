@@ -59,4 +59,10 @@ public class ProductController {
         List<Categoria> categorias = categoriaCasoUso.obtenerTodas();
         return ResponseEntity.ok(ApiResponse.success("Categorías obtenidas exitosamente", categorias));
     }
+
+    @GetMapping("/sucursal/{sucursalId}")
+    public ResponseEntity<ApiResponse<List<Producto>>> obtenerDisponiblesPorSucursal(@PathVariable Long sucursalId) {
+        List<Producto> productos = productoCasoUso.obtenerDisponiblesPorSucursal(sucursalId);
+        return ResponseEntity.ok(ApiResponse.success("Catálogo de la sucursal obtenido exitosamente", productos));
+    }
 }

@@ -9,8 +9,11 @@ import com.cavosh.api_cafe.modules.auth.domain.exception.InvalidTokenException;
 import com.cavosh.api_cafe.modules.auth.domain.exception.ResetTokenInvalidoException;
 import com.cavosh.api_cafe.modules.carrito.domain.exception.EmptyCartException;
 import com.cavosh.api_cafe.modules.carrito.domain.exception.InvalidPromoCodeException;
+import com.cavosh.api_cafe.modules.pedidos.domain.exception.DireccionRequeridaException;
 import com.cavosh.api_cafe.modules.productos.domain.exception.DuplicateFavoriteException;
 import com.cavosh.api_cafe.modules.productos.domain.exception.ResourceNotFoundException;
+import com.cavosh.api_cafe.modules.promociones.domain.exception.CuponInvalidoException;
+import com.cavosh.api_cafe.modules.promociones.domain.exception.PromocionNoEncontradaException;
 import com.cavosh.api_cafe.shared.dto.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -65,6 +68,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({EmptyCartException.class, InvalidPromoCodeException.class})
     public ResponseEntity<ApiResponse<Void>> handleCarritoBadRequest(RuntimeException ex) {
         log.warn("Solicitud inválida sobre el carrito: {}", ex.getMessage());
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    // ------------------------------------------------------------------
+    // 400 BAD REQUEST - Cupón promocional inválido / vencido / sin cupo, o
+    // pedido DELIVERY sin dirección de entrega
+    // ------------------------------------------------------------------
+    @ExceptionHandler({CuponInvalidoException.class, DireccionRequeridaException.class})
+    public ResponseEntity<ApiResponse<Void>> handlePedidoBadRequest(RuntimeException ex) {
+        log.warn("Solicitud inválida sobre el pedido: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
@@ -129,8 +142,8 @@ public class GlobalExceptionHandler {
     // ------------------------------------------------------------------
     // 404 NOT FOUND - Recurso no encontrado
     // ------------------------------------------------------------------
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiResponse<Void>> handleResourceNotFoundException(ResourceNotFoundException ex) {
+    @ExceptionHandler({ResourceNotFoundException.class, PromocionNoEncontradaException.class})
+    public ResponseEntity<ApiResponse<Void>> handleResourceNotFoundException(RuntimeException ex) {
         log.warn("Recurso no encontrado: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
