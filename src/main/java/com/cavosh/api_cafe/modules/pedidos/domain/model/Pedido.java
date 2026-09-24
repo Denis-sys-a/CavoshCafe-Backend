@@ -23,6 +23,13 @@ import java.util.List;
 public class Pedido {
 
     private Long id;
+
+    /**
+     * Identificador legible del pedido (p. ej. CVS-20260924-A1B2C3). Lo asigna la
+     * persistencia al crearlo.
+     */
+    private String numeroPedido;
+
     private Usuario usuario;
     private Sucursal sucursal;
     private Direccion direccion;
