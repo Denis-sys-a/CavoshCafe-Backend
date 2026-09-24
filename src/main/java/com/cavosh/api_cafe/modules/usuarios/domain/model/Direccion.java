@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class Direccion {
 
     private Long id;
+    private String etiqueta;
     private String calle;
     private String ciudad;
     private String distrito;

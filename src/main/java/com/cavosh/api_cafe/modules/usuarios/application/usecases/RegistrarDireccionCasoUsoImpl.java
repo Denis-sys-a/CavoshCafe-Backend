@@ -14,6 +14,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RegistrarDireccionCasoUsoImpl implements RegistrarDireccionCasoUso {
 
+    private static final String ETIQUETA_POR_DEFECTO = "Casa";
+
     private final DireccionRepositorioPuerto direccionRepositorioPuerto;
     private final UsuarioRepository usuarioRepositorioPuerto;
 
@@ -23,6 +25,7 @@ public class RegistrarDireccionCasoUsoImpl implements RegistrarDireccionCasoUso 
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + usuarioId));
 
         Direccion direccion = Direccion.builder()
+                .etiqueta(etiquetaOPorDefecto(dto.getEtiqueta()))
                 .calle(dto.getCalle())
                 .ciudad(dto.getCiudad())
                 .distrito(dto.getDistrito())
@@ -36,5 +39,9 @@ public class RegistrarDireccionCasoUsoImpl implements RegistrarDireccionCasoUso 
     @Override
     public List<Direccion> obtenerDireccionesPorUsuario(Long usuarioId) {
         return direccionRepositorioPuerto.buscarPorUsuarioId(usuarioId);
+    }
+
+    private String etiquetaOPorDefecto(String etiqueta) {
+        return (etiqueta == null || etiqueta.isBlank()) ? ETIQUETA_POR_DEFECTO : etiqueta.trim();
     }
 }
